@@ -7,7 +7,8 @@ from rest_framework import status
 from .models import News, Comment
 from .serializers import NewsSerializer, CommentSerializer
 from django.shortcuts import get_object_or_404
-# Create your views here.
+from rest_framework.permissions import IsAuthenticated
+
 
 # GET = 목록조회, POST = 게시글 작성
 class NewsListView(ListCreateAPIView):
@@ -38,6 +39,8 @@ def get(self, request, id):
     return Response(response_data)
 """      
 class CommentListView(APIView):
+    # 인증(로그인)해야 이 기능 사용할 수 있게 함
+    permission_classes = [IsAuthenticated]
     
     #댓글 목록 조회
     def get(self, request, news_pk):
@@ -56,6 +59,7 @@ class CommentListView(APIView):
     
 
 class CommentDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated]
     
     def get_object(self, comment_pk):
         return get_object_or_404(Comment, pk=comment_pk)
