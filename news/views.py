@@ -17,10 +17,28 @@ class NewsListView(ListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
         
-        
+
+
+"""
+글 조회시 댓글을 함께 반환할 경우
+class NewsDetailView(RetrieveAPIView):
+queryset = News.objects.all()
+serializer_class = NewsSerializer
+
+def get(self, request, id):
+    news = get_object_or_404(News, id=id)
+    comments = news.comments.all()  # 해당 게시글에 달린 모든 댓글 조회
+    news_data = NewsSerializer(news).data
+    comment_data = CommentSerializer(comments, many=True).data
+    response_data = {
+        'news': news_data,
+        'comments': comment_data
+    }
+    return Response(response_data)
+"""      
 class CommentListView(APIView):
     
-    # 해당 게시글 댓글 목록 조회
+    #댓글 목록 조회
     def get(self, request, news_pk):
         news = get_object_or_404(News, pk=news_pk)
         comments = news.comments.all()
