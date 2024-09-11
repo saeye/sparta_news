@@ -18,4 +18,7 @@ class UserCreateView(APIView):
         )
         
         serializer = UserSerializer(user)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response({"message": "가입 완료👌", "data": serializer.data}, status=status.HTTP_201_CREATED)
+    
+
+    
