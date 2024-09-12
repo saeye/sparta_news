@@ -2,7 +2,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 from .models import User
-from .serializers import UserSerializer
+from .serializers import UserSerializer, FollowSerializer
 from .validators import validate_user_data  # validators.py에서 가져오기
 
 class UserCreateView(APIView):
@@ -20,5 +20,23 @@ class UserCreateView(APIView):
         serializer = UserSerializer(user)
         return Response({"message": "가입 완료👌", "data": serializer.data}, status=status.HTTP_201_CREATED)
     
+class FollowView(APIView):
+    def post(self, request, user_id):
+        current_user = request.user
+        target_user = User.objects.get(pk=user_id)
 
-    
+        if current_user.id == target_user.id:
+            return Response({"message": "자신을 팔로우할 수 없어요"}, status=status.HTTP_400_BAD_REQUEST)
+
+        elif target_user in current_user.following.all():
+            current_user.following.remove(target_user)
+            return Response({"message": "팔로우 취소"}, status=status.HTTP_200_OK)
+        else:
+            current_user.following.add(target_user)
+            return Response({"message": "팔로우"}, status=status.HTTP_200_OK)
+
+    def get(self, request, user_id):
+        user = User.objects.get(pk=user_id)
+        serializer = FollowSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+        
