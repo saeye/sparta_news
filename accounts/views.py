@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 from .models import User
 from .serializers import UserSerializer
-from .validators import validate_user_data  # validators.py에서 가져오기 by saeye
+from .validators import validate_user_data 
 
 class UserCreateView(APIView):
     def post(self, request):
