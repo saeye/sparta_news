@@ -1,15 +1,13 @@
-from django.shortcuts import render
-from rest_framework.views import APIView 
+from django.shortcuts import get_object_or_404
+from rest_framework.views import APIView
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView
-from rest_framework.permissions import IsAuthenticatedOrReadOnly,  IsAdminUser
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from .models import News, Comment, Category
-from .serializers import NewsSerializer, CommentSerializer, CategorySerializer, NewsDetailSerializer
-from django.shortcuts import get_object_or_404
-from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q
 
+from .models import News, Comment, Category
+from .serializers import NewsSerializer, CommentSerializer, CategorySerializer, NewsDetailSerializer
 
 
 # 카테고리 생성 admin user만 카테고리 생성가능
@@ -138,3 +136,22 @@ class NewsDetailAPIView(APIView):
         news.delete()
         data = {"pk": f"{pk} is deleted."}
         return Response(data, status=status.HTTP_200_OK)
+    
+
+# 뉴스 게시글 좋아요
+class NewsLikeAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        news = get_object_or_404(News, pk=pk)
+        user = request.user
+
+        if news.likes.filter(pk=user.pk).exists():
+            news.likes.remove(user)
+            message = "좋아요 취소😢"
+
+        else:
+            news.likes.add(user)
+            message = "좋아요👍"
+        
+        return Response(data={"message": message}, status=status.HTTP_200_OK)
