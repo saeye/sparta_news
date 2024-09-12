@@ -145,6 +145,9 @@ class SignoutView(APIView):
 
         try:
             refresh_token = RefreshToken(refresh_token_str)
+            # 블랙리스트 상태를 확인 (optional)
+            refresh_token.check_blacklist()
+            # 블랙리스트에 추가
             refresh_token.blacklist()
             return Response({"message": "You have been logged out."}, status=status.HTTP_200_OK)
         except TokenError:
