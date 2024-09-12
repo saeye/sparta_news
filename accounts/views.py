@@ -10,8 +10,13 @@ from rest_framework.permissions import IsAuthenticated
 from.serializers import ChangePasswordSerializer
 from django.contrib.auth import authenticate
 from django.contrib.auth import logout
-from allauth.account.models import EmailAddress
-from allauth.account.utils import send_email_confirmation
+from django.core.mail import EmailMultiAlternatives
+
+
+# class check_mail(APIView):
+#     def get(self, request, email):
+        
+
 
 
 
@@ -25,11 +30,28 @@ class UserCreateView(APIView):
             username=request.data.get("username"),
             password=request.data.get("password"),
             email=request.data.get("email"),
-            is_active=False,
+            is_active=False, # 비활성화, 메일 확인시 활성화
         )
-        EmailAddress.objects.add_email(request, user = user, email=user.email)
-        send_email_confirmation(request, user)
-        
+        message = """
+            <p>환영합니다. Sparta News에 가입하셨습니다.</p>
+            <p>아래 링크를 클릭하여 메일 인증을 완료하세요.</p>
+            <a href="{% url 'accounts:email_confirmation' %}">Email confirm</a>
+            """
+        mail = EmailMultiAlternatives(
+            'Sparta News Email confirmation',
+            '',
+            'commentsofnews@naver.com',
+            ['jms070300@naver.com'],# 테스트를 위해 메일 고정함, 실제로는 'jms070300@naver.com'->user.email로 바꿔야함
+        )
+        mail.attach_alternative(message, "text/html")
+        mail.send()
+        # send_mail(
+        #     'Sparta News Email confirmation',
+        #     ,
+        #     'commentsofnews@naver.com',  # 발신자 이메일
+        #     ["jms070300@naver.com"],  # 수신자 이메일
+        #     fail_silently=False,
+        #     )
         serializer = UserSerializer(user)
         return Response({"message": "가입 완료👌", "data": serializer.data}, status=status.HTTP_201_CREATED)
 
