@@ -10,6 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 from.serializers import ChangePasswordSerializer
 from django.contrib.auth import authenticate
 from django.contrib.auth import logout
+from rest_framework_simplejwt.exceptions import TokenError
 
 
 
@@ -138,12 +139,13 @@ class SignoutView(APIView):
 
     def post(self, request):
         refresh_token_str = request.data.get("refresh_token")
-        refresh_token = RefreshToken(refresh_token_str)
+        
+        if not refresh_token_str:
+            return Response({"error": "Refresh token is required."}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            refresh_token.check_blacklist()
-        except Exception:
-            return Response({"error": "The token is invalid."}, status=status.HTTP_400_BAD_REQUEST)
-        
-        refresh_token.blacklist()
-        return Response({"message": "You have been logged out."}, status=status.HTTP_200_OK)
+            refresh_token = RefreshToken(refresh_token_str)
+            refresh_token.blacklist()
+            return Response({"message": "You have been logged out."}, status=status.HTTP_200_OK)
+        except TokenError:
+            return Response({"error": "The token is invalid or already blacklisted."}, status=status.HTTP_400_BAD_REQUEST)
