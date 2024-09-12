@@ -10,7 +10,7 @@ class CategorySerializer(serializers.ModelSerializer):
 class NewsSerializer(serializers.ModelSerializer):
     author = serializers.ReadOnlyField(source='author.username')
     category = CategorySerializer(read_only=True)
-    category_id = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(), source='category')
+    category_id = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(), source='category', required=False)
     
     class Meta:
         model = News
