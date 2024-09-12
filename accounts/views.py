@@ -10,6 +10,8 @@ from rest_framework.permissions import IsAuthenticated
 from.serializers import ChangePasswordSerializer
 from django.contrib.auth import authenticate
 from django.contrib.auth import logout
+from allauth.account.models import EmailAddress
+from allauth.account.utils import send_email_confirmation
 
 
 
@@ -22,8 +24,11 @@ class UserCreateView(APIView):
         user = User.objects.create_user(
             username=request.data.get("username"),
             password=request.data.get("password"),
-            email=request.data.get("email")
+            email=request.data.get("email"),
+            is_active=False,
         )
+        EmailAddress.objects.add_email(request, user = user, email=user.email)
+        send_email_confirmation(request, user)
         
         serializer = UserSerializer(user)
         return Response({"message": "가입 완료👌", "data": serializer.data}, status=status.HTTP_201_CREATED)
