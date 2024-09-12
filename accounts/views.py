@@ -2,8 +2,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 from .models import User
-from .serializers import UserSerializer, FollowSerializer
-from .validators import validate_user_data  # validators.py에서 가져오기
+from .serializers import UserSerializer
+from .validators import validate_user_data  # validators.py에서 가져오기 by saeye
 
 class UserCreateView(APIView):
     def post(self, request):
@@ -35,8 +35,21 @@ class FollowView(APIView):
             current_user.following.add(target_user)
             return Response({"message": "팔로우"}, status=status.HTTP_200_OK)
 
+    # def get(self, request, user_id):
+    #     user = User.objects.get(pk=user_id)
+    #     serializer = FollowSerializer(user)
+    #     return Response(serializer.data, status=status.HTTP_200_OK)
+    
     def get(self, request, user_id):
         user = User.objects.get(pk=user_id)
-        serializer = FollowSerializer(user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-        
+        following = user.following.all()
+        followers = user.followers.all()
+        following_count = user.following.count()
+        followers_count = user.followers.count()
+        ret = {
+            'following': following,
+            'followers': followers,
+            'following_count': following_count,
+            'followers_count': followers_count,
+        }
+        return Response(ret, status=status.HTTP_200_OK)
