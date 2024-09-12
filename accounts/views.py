@@ -7,6 +7,7 @@ from .validators import validate_user_data
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from.serializers import ChangePasswordSerializer
+from django.contrib.auth import logout
 
 
 class UserCreateView(APIView):
@@ -58,6 +59,15 @@ class ChangePasswordView(APIView):
 
             return Response({"message": "비밀번호 변경 완료👌"}, status=status.HTTP_200_OK)
 
+
+class DeleteUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        user = request.user
+        logout(request)
+        user.delete()
+        return Response({"message": "회원탈퇴 완료완료👌"}, status=status.HTTP_200_OK)
 
 
 class FollowView(APIView):
