@@ -155,3 +155,15 @@ class NewsLikeAPIView(APIView):
             message = "좋아요👍"
         
         return Response(data={"message": message}, status=status.HTTP_200_OK)
+    
+
+# 좋아요한 뉴스 조회
+class UserLikedNewsAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+
+        user = request.user
+        liked_news = News.objects.filter(likes=user)
+        serializer = NewsSerializer(liked_news, many=True)
+    
+        return Response(serializer.data)
