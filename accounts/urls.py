@@ -2,7 +2,7 @@ from django.urls import path
 from . import views
 from rest_framework_simplejwt.views import TokenRefreshView
 
-urlpatterns = [   
+urlpatterns = [
     path("", views.UserListView.as_view()),
     path("<int:user_id>/", views.UserDetailView.as_view()),
     path("signup/", views.UserCreateView.as_view()),

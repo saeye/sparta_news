@@ -7,11 +7,11 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
         fields = ['id', 'name', 'created_at']
 
+
 class NewsSerializer(serializers.ModelSerializer):
     author = serializers.ReadOnlyField(source='author.username')
     category = CategorySerializer(read_only=True)
     category_id = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(), source='category', required=False)
-    
     class Meta:
         model = News
         fields = ['id', 'title', 'content', 'created_at', 'updated_at', 'author', 'image', 'category', 'category_id']

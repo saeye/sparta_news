@@ -1,13 +1,12 @@
-from django.shortcuts import render
-from rest_framework.views import APIView 
+from django.shortcuts import get_object_or_404
+from rest_framework.views import APIView
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView
-from rest_framework.permissions import IsAuthenticatedOrReadOnly,  IsAdminUser
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+from django.db.models import Q
 from .models import News, Comment, Category
 from .serializers import NewsSerializer, CommentSerializer, CategorySerializer, NewsDetailSerializer
-from django.shortcuts import get_object_or_404
-from rest_framework.permissions import IsAuthenticated
 from django.core.mail import send_mail
 
 
@@ -23,8 +22,32 @@ class CategoryView(CreateAPIView):
 class NewsListView(ListCreateAPIView):
     queryset = News.objects.all()
     serializer_class = NewsSerializer
-    # 로그인 없이 조회가능, 게시글 작성시 로그인 필수
+    # 로그인 없이 조회 가능, 게시글 작성 시 로그인 필수
     permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        queryset = News.objects.all()
+        search_title_content_query = self.request.query_params.get('q', None) # 통합 검색 /api/news/?q=제목+내용
+        title_query = self.request.query_params.get('title', None)  # 제목만 검색: /api/news/?title=제목
+        content_query = self.request.query_params.get('content', None) # 내용만 검색: /api/news/?content=내용
+        author_query = self.request.query_params.get('author', None) # 저자만 검색: /api/news/?author=저자
+        
+        # 제목, 내용 모두 검색
+        if search_title_content_query: 
+            queryset = queryset.filter(
+                Q(title__icontains=search_title_content_query) |
+                Q(content__icontains=search_title_content_query)
+                )
+        # 제목, 내용, 저자 각각 따로 검색
+        else: 
+            if title_query:
+                queryset = queryset.filter(title__icontains=title_query)
+            if content_query:
+                queryset = queryset.filter(content__icontains=content_query)
+            if author_query:
+                queryset = queryset.filter(author__username__icontains=author_query)
+
+        return queryset
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
@@ -123,3 +146,34 @@ class NewsDetailAPIView(APIView):
         news.delete()
         data = {"pk": f"{pk} is deleted."}
         return Response(data, status=status.HTTP_200_OK)
+    
+
+# 뉴스 게시글 좋아요
+class NewsLikeAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        news = get_object_or_404(News, pk=pk)
+        user = request.user
+
+        if news.likes.filter(pk=user.pk).exists():
+            news.likes.remove(user)
+            message = "좋아요 취소😢"
+
+        else:
+            news.likes.add(user)
+            message = "좋아요👍"
+        
+        return Response(data={"message": message}, status=status.HTTP_200_OK)
+    
+
+# 좋아요한 뉴스 조회
+class UserLikedNewsAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+
+        user = request.user
+        liked_news = News.objects.filter(likes=user)
+        serializer = NewsSerializer(liked_news, many=True)
+    
+        return Response(serializer.data)
