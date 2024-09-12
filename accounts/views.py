@@ -4,6 +4,8 @@ from rest_framework import status
 from .models import User
 from .serializers import UserSerializer
 from .validators import validate_user_data 
+from rest_framework import generics
+from rest_framework.permissions import IsAuthenticated
 
 class UserCreateView(APIView):
     def post(self, request):
@@ -19,7 +21,20 @@ class UserCreateView(APIView):
         
         serializer = UserSerializer(user)
         return Response({"message": "가입 완료👌", "data": serializer.data}, status=status.HTTP_201_CREATED)
-    
+
+
+class UserUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+    def put(self, request):
+        user = request.user
+        serializer = UserSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "프로필 잘 수정됨👌"}, serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 class FollowView(APIView):
     def post(self, request, user_id):
         current_user = request.user
