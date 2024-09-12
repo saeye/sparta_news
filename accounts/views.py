@@ -59,15 +59,26 @@ class ChangePasswordView(APIView):
 
             return Response({"message": "비밀번호 변경 완료👌"}, status=status.HTTP_200_OK)
 
+class UserListView(APIView):
+    def get(self, request):
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class DeleteUserView(APIView):
     permission_classes = [IsAuthenticated]
-
     def delete(self, request):
         user = request.user
         logout(request)
         user.delete()
-        return Response({"message": "회원탈퇴 완료완료👌"}, status=status.HTTP_200_OK)
+        return Response({"message": "회원탈퇴 완료👌"}, status=status.HTTP_200_OK)
+
+
+class UserDetailView(APIView):
+    def get(self, request, user_id):
+        user = User.objects.get(pk=user_id)
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class FollowView(APIView):
@@ -98,3 +109,4 @@ class FollowView(APIView):
             'followers_count': followers_count,
         }
         return Response(ret, status=status.HTTP_200_OK)
+    
