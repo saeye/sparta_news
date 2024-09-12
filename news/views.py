@@ -8,6 +8,7 @@ from .models import News, Comment, Category
 from .serializers import NewsSerializer, CommentSerializer, CategorySerializer, NewsDetailSerializer
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
+from django.core.mail import send_mail
 
 
 # 카테고리 생성 admin user만 카테고리 생성가능
@@ -63,6 +64,16 @@ class CommentListView(APIView):
         serializer = CommentSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save(author=request.user, news=news)
+
+            post_author_email = news.author.email
+            send_mail(
+            '새로운 댓글이 달렸습니다',
+            f'{request.user.username}님이 "{news.title}" 게시글에 댓글을 달았습니다.',
+            'commentsofnews@naver.com',  # 발신자 이메일
+            [post_author_email],  # 수신자 이메일
+            fail_silently=False,
+            )
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
     
 
