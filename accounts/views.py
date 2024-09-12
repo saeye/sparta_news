@@ -8,6 +8,7 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from.serializers import ChangePasswordSerializer
 
+
 class UserCreateView(APIView):
     def post(self, request):
         result_msg = validate_user_data(request.data)
