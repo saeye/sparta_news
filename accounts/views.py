@@ -34,12 +34,7 @@ class FollowView(APIView):
         else:
             current_user.following.add(target_user)
             return Response({"message": "팔로우"}, status=status.HTTP_200_OK)
-
-    # def get(self, request, user_id):
-    #     user = User.objects.get(pk=user_id)
-    #     serializer = FollowSerializer(user)
-    #     return Response(serializer.data, status=status.HTTP_200_OK)
-    
+        
     def get(self, request, user_id):
         user = User.objects.get(pk=user_id)
         following = user.following.all()
