@@ -6,6 +6,7 @@ from .serializers import UserSerializer
 from .validators import validate_user_data 
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
+from.serializers import ChangePasswordSerializer
 
 class UserCreateView(APIView):
     def post(self, request):
@@ -30,9 +31,32 @@ class UserUpdateView(APIView):
         serializer = UserSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response({"message": "프로필 잘 수정됨👌"}, serializer.data, status=status.HTTP_200_OK)
+            return Response({"message": "프로필 수정👌"}, serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = ChangePasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            user = request.user
+
+            old_password = serializer.validated_data("old_password")
+            new_password = serializer.validated_data("new_password")
+            
+            # 현재 비밀번호 맞는지 확인
+            if not user.check_password(old_password):
+                return Response({"message": "현재 비밀번호가 맞지 않습니다🥺"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # 비밀번호 변경
+            user.set_password(new_password)
+            user.save()
+
+            return Response({"message": "비밀번호 변경 완료👌"}, status=status.HTTP_200_OK)
+
 
 
 class FollowView(APIView):
