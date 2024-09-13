@@ -24,6 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config.SECRET_KEY
 
+
+OPEN_API_KEY = config.OPENAI_API_KEY
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
@@ -42,6 +45,7 @@ INSTALLED_APPS = [
     #third_party
     'django_extensions',
     'rest_framework',
+    'rest_framework_simplejwt.token_blacklist',
     'django_seed',
     #local_apps
     'accounts',
@@ -159,7 +163,11 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
+    # 페이징 기본 설정
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 10, 
 }
+
 
 SIMPLE_JWT = {
 'ACCESS_TOKEN_LIFETIME': timedelta(minutes=10),
@@ -167,3 +175,13 @@ SIMPLE_JWT = {
 'ROTATE_REFRESH_TOKENS': True,
 'BLACKLIST_AFTER_ROTATION': True,
 }
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = '587'
+EMAIL_HOST_USER = config.EMAIL_ADDRESS # 내 이메일주소
+EMAIL_HOST_PASSWORD = config.EMAIL_HOST_PASSWORD  #발급한 앱비밀번호
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1
+ACCOUNT_EMAIL_SUBJECT_PREFIX = '[이메일 인증]' #이메일 제목앞에 붙일내용
