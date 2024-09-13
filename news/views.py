@@ -67,12 +67,19 @@ class NewsListView(ListCreateAPIView):
 class WebCrawlingAPIView(APIView):
     permission_classes = [IsAdminUser]  # 관리자만 크롤링을 수행할 수 있게 제한
 
-    def post(self, request):  # 클라이언트가 URL을 POST로 요청하면 크롤링을 수행 & 데이터 저장
-        url = request.data.get('url')
+    def post(self, request):  # POST 요청이 들어오면 크롤링을 수행 & 데이터 저장
+        url = request.data.get('url')  # URL을 클라이언트가 제공
 
         # URL이 제공되지 않았을 경우 에러 처리
         if not url:
             return Response({"error": "URL is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # URL을 기반으로 어떤 파서 함수를 쓸지 결정
+            parser = self.get_news_parser(url)
+        except ValueError as e:
+            # 지원되지 않는 뉴스 사이트일 때 단순한 오류 메시지를 반환
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         # 1. 해당 URL에서 크롤링 진행
         response = requests.get(url)
@@ -80,18 +87,15 @@ class WebCrawlingAPIView(APIView):
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, 'html.parser')
 
-            # URL을 기반으로 어떤 파서 함수를 쓸지 결정
-            parser = self.get_news_parser(url)
-
             # 파서를 통해 제목과 내용을 가져옴
             try:
                 title, content = parser(soup)
-            except Exception as e:
-                return Response({"error": f"크롤링 중 오류 발생: {str(e)}"}, status=500)
 
-            # 제목이나 내용이 없을 경우 안내 문구를 반환하고 게시글을 생성하지 않음
-            if not title or "No Title Found" in title or not content or "No Content Found" in content:
-                return Response({"error": "크롤링된 제목 또는 내용이 유효하지 않아 게시글을 생성할 수 없습니다."}, status=status.HTTP_400_BAD_REQUEST)
+                # 제목이나 내용이 유효하지 않으면 예외 처리
+                if not title or not content:
+                    raise ValueError("유효한 제목 또는 내용을 찾을 수 없습니다.")
+            except Exception as e:
+                return Response({"error": f"지원하지 않는 사이트입니다.: {str(e)}"}, status=500)
 
             # 카테고리는 기본값으로 'General'을 설정하거나 요청으로 받음
             category_name = request.data.get('category', 'General')
@@ -133,44 +137,47 @@ class WebCrawlingAPIView(APIView):
             return self.parse_naver_news
         elif 'daum.net' in url:
             return self.parse_daum_news
-        elif 'news.google.com' in url:
-            return self.parse_google_news
         else:
-            raise ValueError("지원되지 않는 뉴스 사이트입니다.")
+            return self.else_news
 
     def parse_naver_news(self, soup):
         """
         네이버 뉴스 파싱
-        네이버 뉴스의 title 위치: h2 -> class_='media_end_head_headline' -> <span>
-        네이버 뉴스의 content 위치: <div> -> class_='newsct_article _article_body'
-        
         """
+        # h2 태그 내의 span 태그에서 제목 추출
         title_tag = soup.find('h2', class_='media_end_head_headline')
-        title = title_tag.find('span').get_text() if title_tag and title_tag.find('span') else "No Title Found"
-        
+        title = title_tag.find('span').get_text() if title_tag and title_tag.find('span') else None
+
         # div 태그에서 내용 추출
         content_div = soup.find('div', class_='newsct_article _article_body')
-        content = content_div.get_text() if content_div else "No Content Found"
-        
+        content = content_div.get_text() if content_div else None
+
         return title, content
 
     def parse_daum_news(self, soup):
         """
         다음 뉴스 파싱
         """
-        title = soup.find('h3', class_='tit_view').get_text() if soup.find('h3', class_='tit_view') else "No Title Found"
+        title_tag = soup.find('h3', class_='tit_view')
+        title = title_tag.get_text() if title_tag else None
+
         content_div = soup.find('div', class_='article_view')
-        content = content_div.get_text() if content_div else "No Content Found"
+        content = content_div.get_text() if content_div else None
+
         return title, content
 
-    def parse_google_news(self, soup):
+    def else_news(self, soup):
         """
-        구글 뉴스 파싱
+        기타 뉴스 파싱
         """
-        title = soup.find('h1').get_text() if soup.find('h1') else "No Title Found"
+        title_tag = soup.find('h1')
+        title = title_tag.get_text() if title_tag else None
+
         content_div = soup.find('div', class_='article-content')
-        content = content_div.get_text() if content_div else "No Content Found"
+        content = content_div.get_text() if content_div else None
+
         return title, content
+
 
 
 """
