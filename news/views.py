@@ -65,6 +65,9 @@ class NewsListView(ListCreateAPIView):
 
 
     # 크롤링한 기사 데이터로 뉴스 작성
+class NewsCreateAPIView(CreateAPIView):
+    serializer_class = NewsSerializer
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         # 크롤링하여 데이터 받아왔다고 가정
