@@ -19,6 +19,7 @@ from.serializers import ChangePasswordSerializer
 from django.contrib.auth import authenticate
 from django.contrib.auth import logout
 from rest_framework_simplejwt.exceptions import TokenError
+from .throttles import UpdateRateThrottle
 
 
 
@@ -85,6 +86,7 @@ class UserCreateView(APIView):
 # 프로필 수정
 class UserUpdateView(APIView):
     permission_classes = [IsAuthenticated]
+    throttle_classes = [UpdateRateThrottle]
 
     def put(self, request):
         user = request.user
