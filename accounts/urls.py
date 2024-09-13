@@ -13,5 +13,5 @@ urlpatterns = [
     path("update/<int:user_id>/", views.UserUpdateView.as_view()),
     path("changepassword/", views.ChangePasswordView.as_view()),
     path("deleteuser/", views.DeleteUserView.as_view()),
-    # path("email/confirmation/", views.check_mail, name = "email_confirmation"),
+    path("email/confirmation/<str:passkey>", views.check_mail.as_view(), name = "email_confirmation"),
 ]

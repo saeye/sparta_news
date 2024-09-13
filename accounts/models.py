@@ -9,3 +9,12 @@ class User(AbstractUser):
     
     def __str__(self):
         return self.username
+
+
+class EmailConfirmation(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    is_confirmed = models.BooleanField(default=False)
+    confirmkey = models.CharField(max_length=50)
+    # expired_date = models.DateTimeField()
+    # def __init__(self, *args, **kwargs):
+    #     expired_date = timezone.now() + timedelta(days=1)
