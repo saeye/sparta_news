@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 from .models import User, EmailConfirmation
 from .serializers import UserSerializer
-from .validators import validate_user_data  # validators.py에서 가져오기
+from .validators import validate_user_data  
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
@@ -54,7 +54,7 @@ class check_mail(APIView):
         # return Response({"message": "����된 ��크입니다."}, status=status.HTTP_400_BAD_REQUEST)
 
 
-
+# 회원가입
 class UserCreateView(APIView):
     def post(self, request):
         result_msg = validate_user_data(request.data)
@@ -83,7 +83,7 @@ class UserCreateView(APIView):
         serializer = UserSerializer(user)
         return Response({"message": "가입 완료👌", "data": serializer.data}, status=status.HTTP_201_CREATED)
 
-
+# 프로필 수정
 class UserUpdateView(APIView):
     permission_classes = [IsAuthenticated]
     throttle_classes = [UpdateRateThrottle]
@@ -97,7 +97,7 @@ class UserUpdateView(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
+# 비밀번호 변경
 class ChangePasswordView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -127,6 +127,7 @@ class UserListView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+# 회원탈퇴
 class DeleteUserView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -141,7 +142,7 @@ class UserDetailView(APIView):
     def get(self, request, user_id):
         user = User.objects.get(pk=user_id)
         serializer = UserSerializer(user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"user": serializer.data, "point": user.point}, status=status.HTTP_200_OK)
 
 
 class FollowView(APIView):
@@ -157,7 +158,13 @@ class FollowView(APIView):
             return Response({"message": "팔로우 취소"}, status=status.HTTP_200_OK)
         else:
             current_user.following.add(target_user)
-            return Response({"message": "팔로우"}, status=status.HTTP_200_OK)
+
+            # 포인트 지급
+            current_user.point += 1
+            current_user.save()
+
+            return Response({"message": "팔로우👌 1포인트 지급 완료💰"}, status=status.HTTP_200_OK)
+
 
     def get(self, request, user_id):
         user = User.objects.get(pk=user_id)
@@ -173,9 +180,8 @@ class FollowView(APIView):
         }
         return Response(ret, status=status.HTTP_200_OK)
 
+
 # 로그인
-
-
 class SigninView(APIView):
     def post(self, request):
         username = request.data.get("username")
@@ -185,10 +191,16 @@ class SigninView(APIView):
 
         if not user:
             return Response({"error": "Username or password is incorrect."}, status=status.HTTP_400_BAD_REQUEST)
+      
+        # 포인트 지급
+        user.point += 1
+        user.save()
+
 
         # 인증 후 토큰 발급
         refresh = RefreshToken.for_user(user)
         return Response({
+            "message": f"안녕하세요 {user.username}님😊 와주셔서 감사해요! 로그인 포인트(1)가 지급되었습니다.",
             "access_token": str(refresh.access_token),
             "refresh_token": str(refresh)
         }, status=status.HTTP_200_OK)
