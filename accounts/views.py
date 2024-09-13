@@ -24,7 +24,7 @@ from rest_framework_simplejwt.exceptions import TokenError
 
 class check_mail(APIView):
     def get(self, request, passkey):
-        print(passkey)
+        # print(passkey)
         #존재하며 사용 전일때
         if EmailConfirmation.objects.filter(confirmkey=passkey).exists() and EmailConfirmation.objects.filter(confirmkey=passkey).first().is_confirmed == False:
             confirm = EmailConfirmation.objects.filter(confirmkey=passkey).first()
