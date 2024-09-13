@@ -12,7 +12,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth import logout
 
 
-
+# 회원가입
 class UserCreateView(APIView):
     def post(self, request):
         result_msg = validate_user_data(request.data)
@@ -28,7 +28,7 @@ class UserCreateView(APIView):
         serializer = UserSerializer(user)
         return Response({"message": "가입 완료👌", "data": serializer.data}, status=status.HTTP_201_CREATED)
 
-
+# 프로필 수정
 class UserUpdateView(APIView):
     permission_classes = [IsAuthenticated]
     def put(self, request):
@@ -40,7 +40,7 @@ class UserUpdateView(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
+# 비밀번호 변경
 class ChangePasswordView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -68,6 +68,7 @@ class UserListView(APIView):
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+# 회원탈퇴
 class DeleteUserView(APIView):
     permission_classes = [IsAuthenticated]
     def delete(self, request):
