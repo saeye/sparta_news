@@ -82,7 +82,7 @@ class UserDetailView(APIView):
     def get(self, request, user_id):
         user = User.objects.get(pk=user_id)
         serializer = UserSerializer(user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"user": serializer.data, "point": user.point}, status=status.HTTP_200_OK)
 
 
 class FollowView(APIView):
@@ -98,7 +98,15 @@ class FollowView(APIView):
             return Response({"message": "팔로우 취소"}, status=status.HTTP_200_OK)
         else:
             current_user.following.add(target_user)
-            return Response({"message": "팔로우"}, status=status.HTTP_200_OK)
+
+            # 포인트 지급
+            current_user.point += 1
+            current_user.save()
+
+            return Response({"message": "팔로우👌 1포인트 지급 완료💰"}, status=status.HTTP_200_OK)
+        
+
+
         
     def get(self, request, user_id):
         user = User.objects.get(pk=user_id)
@@ -125,9 +133,14 @@ class SigninView(APIView):
         if not user:
             return Response({"error": "Username or password is incorrect."}, status=status.HTTP_400_BAD_REQUEST)
         
+        # 포인트 지급
+        user.point += 1
+        user.save()
+
         # 인증 후 토큰 발급
         refresh = RefreshToken.for_user(user)
         return Response({
+            "message": f"안녕하세요 {user.username}님😊 와주셔서 감사해요! 로그인 포인트(1)가 지급되었습니다.",
             "access_token": str(refresh.access_token),
             "refresh_token": str(refresh)
         }, status=status.HTTP_200_OK)

@@ -6,6 +6,7 @@ class User(AbstractUser):
     username = models.CharField(max_length=30, unique=True)
     email = models.EmailField(unique=True)
     following = models.ManyToManyField("self", symmetrical=False, related_name="followers")
+    point = models.IntegerField(default=0)
     
     def __str__(self):
         return self.username
