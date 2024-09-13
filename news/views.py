@@ -56,6 +56,14 @@ class NewsListView(ListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
+        # 포인트 지급
+        user = self.request.user
+        user.point += 3
+        user.save()
+
+        return Response({"message": "글 작성 포인트💰(3) 지급되었습니다."}, status=status.HTTP_201_CREATED)
+
+
     # 크롤링한 기사 데이터로 뉴스 작성
 
     def post(self, request, *args, **kwargs):
@@ -114,6 +122,7 @@ class NewsListView(ListCreateAPIView):
         return Response({'error': 'Invalid data format'}, status=status.HTTP_400_BAD_REQUEST)
 
 
+
 """
 글 조회시 댓글을 함께 반환할 경우
 class NewsDetailView(RetrieveAPIView):
@@ -151,6 +160,12 @@ class CommentListView(APIView):
         if serializer.is_valid(raise_exception=True):
             serializer.save(author=request.user, news=news)
 
+
+            user = request.user
+            user.point += 2
+            user.save()
+    
+
             post_author_email = news.author.email
             send_mail(
                 '새로운 댓글이 달렸습니다',
@@ -160,7 +175,8 @@ class CommentListView(APIView):
                 fail_silently=False,
             )
 
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response({"message": "댓글 작성 포인트 +2 💰"}, serializer.data, status=status.HTTP_201_CREATED)
+
 
 
 class CommentDetailAPIView(APIView):
@@ -226,6 +242,11 @@ class NewsLikeAPIView(APIView):
         else:
             news.likes.add(user)
             message = "좋아요👍"
+
+            user.point += 1
+            user.save()
+            return Response({"message": "댓글 작성 완료👌 포인트(1) 지급 완료!💰"}, user.data, status=status.HTTP_201_CREATED)
+        
 
         return Response(data={"message": message}, status=status.HTTP_200_OK)
 
