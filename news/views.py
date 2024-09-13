@@ -67,26 +67,31 @@ class NewsListView(ListCreateAPIView):
 class WebCrawlingAPIView(APIView):
     permission_classes = [IsAdminUser]  # 관리자만 크롤링을 수행할 수 있게 제한
 
-    def post(self, request): # POST 요청이 들어오면 크롤링을 수행 & 데이터 저장
-
-        url = request.data.get('url')  # URL을 클라이언트가 제공
+    def post(self, request):  # 클라이언트가 URL을 POST로 요청하면 크롤링을 수행 & 데이터 저장
+        url = request.data.get('url')
 
         # URL이 제공되지 않았을 경우 에러 처리
         if not url:
             return Response({"error": "URL is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # 2. 해당 URL에서 크롤링 진행
+        # 1. 해당 URL에서 크롤링 진행
         response = requests.get(url)
 
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, 'html.parser')
 
-            # 제목 크롤링
-            title = soup.find('h1', class_='article-title').get_text() if soup.find('h1', class_='article-title') else "No Title Found"
+            # URL을 기반으로 어떤 파서 함수를 쓸지 결정
+            parser = self.get_news_parser(url)
 
-            # 내용 크롤링
-            content_div = soup.find('div', class_='article-content')
-            content = content_div.get_text() if content_div else "No Content Found"
+            # 파서를 통해 제목과 내용을 가져옴
+            try:
+                title, content = parser(soup)
+            except Exception as e:
+                return Response({"error": f"크롤링 중 오류 발생: {str(e)}"}, status=500)
+
+            # 제목이나 내용이 없을 경우 안내 문구를 반환하고 게시글을 생성하지 않음
+            if not title or "No Title Found" in title or not content or "No Content Found" in content:
+                return Response({"error": "크롤링된 제목 또는 내용이 유효하지 않아 게시글을 생성할 수 없습니다."}, status=status.HTTP_400_BAD_REQUEST)
 
             # 카테고리는 기본값으로 'General'을 설정하거나 요청으로 받음
             category_name = request.data.get('category', 'General')
@@ -104,7 +109,7 @@ class WebCrawlingAPIView(APIView):
             except Exception as e:
                 return Response({"error": f"ChatGPT 요청 실패: {str(e)}"}, status=500)
 
-            # 3. 크롤링한 데이터를 News 모델에 저장
+            # 2. 크롤링한 데이터를 News 모델에 저장
             serializer = NewsSerializer(data={
                 'title': title,
                 'content': content,
@@ -119,6 +124,53 @@ class WebCrawlingAPIView(APIView):
 
         else:
             return Response({"error": "Failed to retrieve the webpage"}, status=status.HTTP_400_BAD_REQUEST)
+
+    def get_news_parser(self, url):
+        """
+        뉴스 사이트에 맞는 파서 함수를 반환하는 메서드
+        """
+        if 'naver.com' in url:
+            return self.parse_naver_news
+        elif 'daum.net' in url:
+            return self.parse_daum_news
+        elif 'news.google.com' in url:
+            return self.parse_google_news
+        else:
+            raise ValueError("지원되지 않는 뉴스 사이트입니다.")
+
+    def parse_naver_news(self, soup):
+        """
+        네이버 뉴스 파싱
+        네이버 뉴스의 title 위치: h2 -> class_='media_end_head_headline' -> <span>
+        네이버 뉴스의 content 위치: <div> -> class_='newsct_article _article_body'
+        
+        """
+        title_tag = soup.find('h2', class_='media_end_head_headline')
+        title = title_tag.find('span').get_text() if title_tag and title_tag.find('span') else "No Title Found"
+        
+        # div 태그에서 내용 추출
+        content_div = soup.find('div', class_='newsct_article _article_body')
+        content = content_div.get_text() if content_div else "No Content Found"
+        
+        return title, content
+
+    def parse_daum_news(self, soup):
+        """
+        다음 뉴스 파싱
+        """
+        title = soup.find('h3', class_='tit_view').get_text() if soup.find('h3', class_='tit_view') else "No Title Found"
+        content_div = soup.find('div', class_='article_view')
+        content = content_div.get_text() if content_div else "No Content Found"
+        return title, content
+
+    def parse_google_news(self, soup):
+        """
+        구글 뉴스 파싱
+        """
+        title = soup.find('h1').get_text() if soup.find('h1') else "No Title Found"
+        content_div = soup.find('div', class_='article-content')
+        content = content_div.get_text() if content_div else "No Content Found"
+        return title, content
 
 
 """
