@@ -10,7 +10,7 @@ urlpatterns = [
     path("signout/", views.SignoutView.as_view()),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),   
     path("follow/<int:user_id>/", views.FollowView.as_view()),
-    path("update/<int:user_id>/", views.UserUpdateView.as_view()),
+    path("update/", views.UserUpdateView.as_view()),
     path("changepassword/", views.ChangePasswordView.as_view()),
     path("deleteuser/", views.DeleteUserView.as_view()),
     path("email/confirmation/<str:passkey>", views.check_mail.as_view(), name = "email_confirmation"),

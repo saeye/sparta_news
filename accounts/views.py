@@ -93,7 +93,7 @@ class UserUpdateView(APIView):
         serializer = UserSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response({"message": "프로필 수정👌"}, serializer.data, status=status.HTTP_200_OK)
+            return Response({"data": serializer.data, "message": "프로필 수정👌"}, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -102,10 +102,11 @@ class ChangePasswordView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        serializer = ChangePasswordSerializer(data=request.data)
+        user = request.user
+        serializer = ChangePasswordSerializer(user, data=request.data)
+        print(serializer)
+        
         if serializer.is_valid():
-            user = request.user
-
             old_password = serializer.validated_data("old_password")
             new_password = serializer.validated_data("new_password")
 
