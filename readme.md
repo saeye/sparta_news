@@ -11,7 +11,9 @@
 | "profile/update/"        | PUT        | 회원 정보 수정     | `introduction` (optional), `email` (optional) <br> *Username and points are visible but not editable. Password can be changed separately.* |
 | "changepassword/".       | PUT        | 비밀번호 변경      | `current_password` (required), `new_password` (required)                       |
 | "deleteuser/".           | PUT        | 비밀번호 변경      | `current_password` (required), `new_password` (required)                       |
-<br>		
+
+<br>
+
 ## 게시판 (Board)<br>
 <br>
 
@@ -25,7 +27,9 @@
 | `/news/detail/{id}`  | GET        | 뉴스 상세 페이지        | Returns: `title`, `link`, `content`, `author`, comments list                    |
 | `/news/update/{id}`  | PUT        | 뉴스 수정               | `title` (optional), `link` (optional), `category` (optional), `content` (optional) |
 | `/news/delete/{id}`  | DELETE     | 뉴스 삭제               |
+
 <br>
+
 ### 댓글 관리
 
 | **Endpoint**            | **Method**  | **Description**    | **Parameters**                                                                 |
@@ -33,7 +37,9 @@
 | `/comments/list/{newsId}`| GET         | 댓글 조회           | Returns: List of comments with fields: `content`, `author`, and `time`.         |
 | `/comments/add/{newsId}`| POST        | 댓글 등록           | `content` (required) <br> *On success, 2 points are awarded.*                  |
 | `/comments/delete/{id}`  | DELETE      | 댓글 삭제           |
+
 <br>
+
 ### 좋아요 기능
 
 | **Endpoint**       | **Method**  | **Description**    | **Parameters**                                                                 |
