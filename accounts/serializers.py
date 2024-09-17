@@ -7,9 +7,11 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ["username", "email"]
 
 class UserupdateSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(read_only=True)
+    point = serializers.IntegerField(read_only=True)
     class Meta:
         model = User
-        fields = ["email", "password"]
+        fields = ["email", "intro", "profile_image", "username", "point"]
 
     def validate_password(self, value):
         if value == self.instance.password:
