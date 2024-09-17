@@ -6,6 +6,7 @@ app_name = "news"
 urlpatterns = [
 
     path('', views.NewsListView.as_view(), name='news_list'),
+    path('create/', views.NewsCreateAPIView.as_view(), name='news_create'),
     path('<int:pk>/', views.NewsDetailAPIView.as_view(), name='news_detail'),
     path('category/', views.CategoryView.as_view(), name='category_create'),
     path('like/<int:pk>/', views.NewsLikeAPIView.as_view()),
