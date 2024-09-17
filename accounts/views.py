@@ -20,6 +20,8 @@ from django.contrib.auth import authenticate
 from django.contrib.auth import logout
 from rest_framework_simplejwt.exceptions import TokenError
 from .throttles import UpdateRateThrottle
+from django.utils import timezone
+from datetime import timedelta
 
 
 class check_mail(APIView):
@@ -150,7 +152,6 @@ class DeleteUserView(APIView):
         return Response({"message": "회원탈퇴 완료👌"}, status=status.HTTP_200_OK)
 
 
-
 class FollowView(APIView):
     def post(self, request, user_id):
         current_user = request.user
@@ -168,6 +169,8 @@ class FollowView(APIView):
             # 포인트 지급
             current_user.point += 1
             current_user.save()
+            target_user.point += 1
+            target_user.save()
 
             return Response({"message": "팔로우👌 1포인트 지급 완료💰"}, status=status.HTTP_200_OK)
 
@@ -194,19 +197,27 @@ class SigninView(APIView):
         password = request.data.get("password")
 
         user = authenticate(username=username, password=password)
+        message = ""
 
         if not user:
             return Response({"error": "Username or password is incorrect."}, status=status.HTTP_400_BAD_REQUEST)
-      
-        # 포인트 지급
-        user.point += 1
-        user.save()
+        
+        # 짧은 시간 내 포인트 지급 방지
+        last_login_time = user.last_login
+        if last_login_time and timezone.now() - last_login_time < timedelta(minutes=30):  # 30분 이내 로그인 시 포인트 지급 없음
+            message = "로그인 포인트 지급은 30분마다 가능합니다😊"
+        else:
+            # 포인트 지급
+            user.point += 1
+            user.last_login = timezone.now()
+            user.save() 
+            message = f"안녕하세요 {user.username}님😊 안녕하세요! 로그인 포인트(1) 지급되었습니다."
 
 
         # 인증 후 토큰 발급
         refresh = RefreshToken.for_user(user)
         return Response({
-            "message": f"안녕하세요 {user.username}님😊 와주셔서 감사합니다! 로그인 포인트(1)가 지급되었습니다.",
+            "message": message,
             "access_token": str(refresh.access_token),
             "refresh_token": str(refresh)
         }, status=status.HTTP_200_OK)
