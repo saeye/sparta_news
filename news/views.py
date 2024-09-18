@@ -65,7 +65,7 @@ class NewsListView(ListCreateAPIView):
         return Response({"message": "글 작성 포인트💰(3) 지급되었습니다."}, status=status.HTTP_201_CREATED)
 
 class WebCrawlingAPIView(APIView):
-    permission_classes = [IsAdminUser]  # 관리자만 크롤링을 수행할 수 있게 제한
+    permission_classes = [IsAuthenticated]  # 관리자만 크롤링을 수행할 수 있게 제한
 
     def post(self, request):  # POST 요청이 들어오면 크롤링을 수행 & 데이터 저장
         url = request.data.get('url')  # URL을 클라이언트가 제공
@@ -290,17 +290,17 @@ class NewsLikeAPIView(APIView):
         news = get_object_or_404(News, pk=pk)
         user = request.user
 
-        if news.likes.filter(pk=user.pk).exists():
-            news.likes.remove(user)
+        if news.like.filter(pk=user.pk).exists():
+            news.like.remove(user)
             message = "좋아요 취소😢"
 
         else:
-            news.likes.add(user)
+            news.like.add(user)
             message = "좋아요👍"
 
             user.point += 1
             user.save()
-            return Response({"message": "댓글 작성 완료👌 포인트(1) 지급 완료!💰"}, user.data, status=status.HTTP_201_CREATED)
+            return Response({"message": "좋아요❤️"}, status=status.HTTP_201_CREATED)
         
 
         return Response(data={"message": message}, status=status.HTTP_200_OK)
@@ -313,7 +313,7 @@ class UserLikedNewsAPIView(APIView):
     def get(self, request):
 
         user = request.user
-        liked_news = News.objects.filter(likes=user)
+        liked_news = News.objects.filter(like=user)
         serializer = NewsSerializer(liked_news, many=True)
 
         return Response(serializer.data)
