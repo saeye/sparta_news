@@ -204,6 +204,7 @@ class SigninView(APIView):
         
         # 짧은 시간 내 포인트 지급 방지
         last_login_time = user.last_login
+        print(timezone.now(), last_login_time, timedelta(minutes=30))
         if last_login_time and timezone.now() - last_login_time < timedelta(minutes=30):  # 30분 이내 로그인 시 포인트 지급 없음
             message = "로그인 포인트 지급은 30분마다 가능합니다😊"
         else:
@@ -242,3 +243,4 @@ class SignoutView(APIView):
             return Response({"message": "You have been logged out."}, status=status.HTTP_200_OK)
         except TokenError:
             return Response({"error": "The token is invalid or already blacklisted."}, status=status.HTTP_400_BAD_REQUEST)
+        

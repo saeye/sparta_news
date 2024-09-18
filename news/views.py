@@ -26,7 +26,7 @@ class NewsListView(ListCreateAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
-        queryset = News.objects.all()
+        queryset = News.objects.all().order_by("-pk")
         search_title_content_query = self.request.query_params.get(
             'q', None)  # 통합 검색 /api/news/?q=제목+내용
         title_query = self.request.query_params.get(

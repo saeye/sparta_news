@@ -44,4 +44,4 @@
 
 | **Endpoint**       | **Method**  | **Description**    | **Parameters**                                                                 |
 |--------------------|-------------|--------------------|--------------------------------------------------------------------------------|
-| `/like/news/{id}`  | POST        | 뉴스 좋아요         | *On success, 1 point is awarded to the user who liked the news.*              |
+| `/like/news/{id}`  | POST        | 뉴스 좋아요         | *On success, 1 or point is awarded to the user who liked the news.*              |
