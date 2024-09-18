@@ -204,9 +204,9 @@ class SigninView(APIView):
         
         # 짧은 시간 내 포인트 지급 방지
         last_login_time = user.last_login
-        print(timezone.now(), last_login_time, timedelta(minutes=1))
-        if last_login_time and timezone.now() - last_login_time < timedelta(minutes=1):  # 30분 이내 로그인 시 포인트 지급 없음
-            message = "로그인 포인트는 30분 후에 지급됩니다😊"
+        print(timezone.now(), last_login_time, timedelta(days=1))
+        if last_login_time and timezone.now() - last_login_time < timedelta(days=1):  # 하루 1번 포인트 지급
+            message = "로그인 포인트는 하루 한 번 지급됩니다😊"
         else:
             # 포인트 지급
             user.point += 1
