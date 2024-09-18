@@ -176,8 +176,6 @@ class WebCrawlingAPIView(APIView):
         content_div = soup.find('div', class_='article-content')
         content = content_div.get_text() if content_div else None
 
-        return title, content
-
 
 
 """
