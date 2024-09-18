@@ -107,8 +107,8 @@ class ChangePasswordView(APIView):
         print(serializer)
         
         if serializer.is_valid():
-            old_password = serializer.validated_data("old_password")
-            new_password = serializer.validated_data("new_password")
+            old_password = serializer.validated_data["old_password"]
+            new_password = serializer.validated_data["new_password"]
 
             # 현재 비밀번호 맞는지 확인
             if not user.check_password(old_password):

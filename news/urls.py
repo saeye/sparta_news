@@ -13,4 +13,5 @@ urlpatterns = [
     path('<int:news_pk>/comments/', views.CommentListView.as_view(), name='comment_list'),
     path('comments/<int:comment_pk>/', views.CommentDetailAPIView.as_view(), name='comment_detail'),
     path('user/liked/', views.UserLikedNewsAPIView.as_view()),
+    path('news_crawling/', views.WebCrawlingAPIView.as_view(), name='news_crawling'),
 ]
