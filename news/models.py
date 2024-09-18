@@ -10,7 +10,7 @@ class Category(models.Model):
         return self.name
 
 class News(models.Model):
-    title = models.CharField(max_length=100)
+    title = models.CharField(max_length=2500)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
