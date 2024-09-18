@@ -4,13 +4,13 @@
 
 | **Endpoint**             | **Method** | **Description**     | **Parameters**                                                                 |
 |--------------------      |------------|-------------------- |--------------------------------------------------------------------------------|
-| "signup/"                | POST       | 회원 가입         | `username` (required), `password` (required), `email` (required)               |
-| "signin/"                | POST       | 로그인           | `username` (required), `password` (required) <br> *On success, 1 point is awarded.* |
+| "signup/"                | POST       | 회원 가입         | `username`, `password`, `email`               |
+| "signin/"                | POST       | 로그인           | `username`, `password`|
 | "signout/"               | POST       | 로그아웃          |refresh_token                                                                                |
-| "profile/<int:user_id>/" | PUT        | 회원 정보 조회     | `introduction` (optional), `email` (optional) <br> *Username and points are visible but not editable. Password can be changed separately.* |
-| "profile/update/"        | PUT        | 회원 정보 수정     | `introduction` (optional), `email` (optional) <br> *Username and points are visible but not editable. Password can be changed separately.* |
-| "changepassword/".       | PUT        | 비밀번호 변경      | `current_password` (required), `new_password` (required)                       |
-| "deleteuser/".           | PUT        | 비밀번호 변경      | `current_password` (required), `new_password` (required)                       |
+| "profile/<int:user_id>/" | PUT        | 회원 정보 조회     | 'username', `email`, 'intro', 'profile_image', 'point' |
+| "profile/update/"        | PUT        | 회원 정보 수정     | `intro`, `email`, 'profile_image' |
+| "changepassword/".       | PUT        | 비밀번호 변경      | `current_password`, `new_password`                      |
+| "deleteuser/".           | PUT        | 회원탈퇴          | `access token`                      |
 
 <br>
 
