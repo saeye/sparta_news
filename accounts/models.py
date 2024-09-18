@@ -3,10 +3,12 @@ from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
 
-    username = models.CharField(max_length=30, unique=True)# unique=True
-    email = models.EmailField(unique=True)# unique=True
+    username = models.CharField(max_length=30, unique=True)
+    email = models.EmailField(unique=True)
     following = models.ManyToManyField("self", symmetrical=False, related_name="followers")
     point = models.IntegerField(default=0)
+    intro = models.TextField(blank=True)
+    profile_image = models.ImageField(upload_to='profile_images/', blank=True)
     
     def __str__(self):
         return self.username
@@ -18,4 +20,4 @@ class EmailConfirmation(models.Model):
     confirmkey = models.CharField(max_length=50)
     # expired_date = models.DateTimeField()
     # def __init__(self, *args, **kwargs):
-    #     expired_date = timezone.now() + timedelta(days=1)
+    # expired_date = timezone.now() + timedelta(days=1)

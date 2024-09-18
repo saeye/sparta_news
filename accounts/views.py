@@ -8,8 +8,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 from .models import User, EmailConfirmation
-from .serializers import UserSerializer
-from .validators import validate_user_data  
+from .serializers import UserSerializer, UserupdateSerializer
+from .validators import validate_user_data, changepasswordValidation
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
@@ -20,7 +20,8 @@ from django.contrib.auth import authenticate
 from django.contrib.auth import logout
 from rest_framework_simplejwt.exceptions import TokenError
 from .throttles import UpdateRateThrottle
-
+from django.utils import timezone
+from datetime import timedelta
 
 
 class check_mail(APIView):
@@ -76,26 +77,36 @@ class UserCreateView(APIView):
             '',
             'commentsofnews@naver.com',
             # 테스트를 위해 메일 고정함, 실제로는 'jms070300@naver.com'->user.email로 바꿔야함
-            ['jms070300@naver.com', 'jeonminseong0703@gmail.com'],
+            ['saeye42@gmail.com'],
         )
         mail.attach_alternative(message, "text/html")
         mail.send()
         serializer = UserSerializer(user)
         return Response({"message": "가입 완료👌", "data": serializer.data}, status=status.HTTP_201_CREATED)
 
-# 프로필 수정
+
+# 회원정보 조회
+class UserDetailView(APIView):
+    def get(self, request, user_id):
+        user = User.objects.get(pk=user_id)
+        serializer = UserupdateSerializer(user)
+        return Response({"user": serializer.data, "point": user.point}, status=status.HTTP_200_OK)
+
+
+# 회원정보 수정
 class UserUpdateView(APIView):
     permission_classes = [IsAuthenticated]
-    throttle_classes = [UpdateRateThrottle]
+    # throttle_classes = [UpdateRateThrottle]
 
     def put(self, request):
         user = request.user
-        serializer = UserSerializer(user, data=request.data, partial=True)
+        serializer = UserupdateSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response({"data": serializer.data, "message": "프로필 수정👌"}, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 # 비밀번호 변경
 class ChangePasswordView(APIView):
@@ -104,11 +115,13 @@ class ChangePasswordView(APIView):
     def post(self, request):
         user = request.user
         serializer = ChangePasswordSerializer(user, data=request.data)
-        print(serializer)
-        
+
         if serializer.is_valid():
             old_password = serializer.validated_data["old_password"]
             new_password = serializer.validated_data["new_password"]
+
+            if not changepasswordValidation(new_password):
+                return Response({"message": "비밀번호 형식에 맞지 않습니다. 비밀번호는 최소 8자 이상이어야 하며 1개 이상의 숫자를 포함해야 하며 1개 이상의 특수문자를 포함해야 합니다😊"}, status=status.HTTP_400_BAD_REQUEST)
 
             # 현재 비밀번호 맞는지 확인
             if not user.check_password(old_password):
@@ -134,16 +147,9 @@ class DeleteUserView(APIView):
 
     def delete(self, request):
         user = request.user
+        request.user.delete()
         logout(request)
-        user.delete()
         return Response({"message": "회원탈퇴 완료👌"}, status=status.HTTP_200_OK)
-
-
-class UserDetailView(APIView):
-    def get(self, request, user_id):
-        user = User.objects.get(pk=user_id)
-        serializer = UserSerializer(user)
-        return Response({"user": serializer.data, "point": user.point}, status=status.HTTP_200_OK)
 
 
 class FollowView(APIView):
@@ -163,6 +169,8 @@ class FollowView(APIView):
             # 포인트 지급
             current_user.point += 1
             current_user.save()
+            target_user.point += 1
+            target_user.save()
 
             return Response({"message": "팔로우👌 1포인트 지급 완료💰"}, status=status.HTTP_200_OK)
 
@@ -189,19 +197,28 @@ class SigninView(APIView):
         password = request.data.get("password")
 
         user = authenticate(username=username, password=password)
+        message = ""
 
         if not user:
             return Response({"error": "Username or password is incorrect."}, status=status.HTTP_400_BAD_REQUEST)
-      
-        # 포인트 지급
-        user.point += 1
-        user.save()
+        
+        # 짧은 시간 내 포인트 지급 방지
+        last_login_time = user.last_login
+        print(timezone.now(), last_login_time, timedelta(days=1))
+        if last_login_time and timezone.now() - last_login_time < timedelta(days=1):  # 하루 1번 포인트 지급
+            message = "로그인 포인트는 하루 한 번 지급됩니다😊"
+        else:
+            # 포인트 지급
+            user.point += 1
+            user.last_login = timezone.now()
+            user.save() 
+            message = f"안녕하세요 {user.username}님😊 안녕하세요! 로그인 포인트(1) 지급되었습니다."
 
 
         # 인증 후 토큰 발급
         refresh = RefreshToken.for_user(user)
         return Response({
-            "message": f"안녕하세요 {user.username}님😊 와주셔서 감사해요! 로그인 포인트(1)가 지급되었습니다.",
+            "message": message,
             "access_token": str(refresh.access_token),
             "refresh_token": str(refresh)
         }, status=status.HTTP_200_OK)
