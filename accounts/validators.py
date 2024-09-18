@@ -1,4 +1,5 @@
 from .models import User
+import re
 
 def validate_user_data(user_data):
     username = user_data.get("username")
@@ -20,3 +21,27 @@ def validate_user_data(user_data):
         return "비밀번호는 8자 이상이어야 해요🫠"
     return None
     
+
+
+def changepasswordValidation(pwd):
+
+    if len(pwd) < 8:
+    # 비밀번호는 최소 8자 이상이어야 함
+        return False
+        
+    elif re.search('[0-9]+', pwd) is None:
+        # 비밀번호는 최소 1개 이상의 숫자가 포함되어야 함
+        return False
+        
+    elif re.search('[a-zA-Z]+', pwd) is None:
+        # 비밀번호는 최소 1개 이상의 영문 대소문자가 포함되어야 함
+        return False
+        
+    elif re.search('[`~!@#$%^&*(),<.>/?]+', pwd) is None:
+        # 비밀번호는 최소 1개 이상의 특수문자가 포함되어야 함
+        return False
+        
+    else:
+        return True
+
+

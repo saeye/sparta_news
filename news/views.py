@@ -11,6 +11,7 @@ from django.core.mail import send_mail
 from .utils import translate_or_summarize, generate_title
 from bs4 import BeautifulSoup
 import requests
+
 # 카테고리 생성 admin user만 카테고리 생성가능
 class CategoryView(CreateAPIView):
     queryset = Category.objects.all()
@@ -26,7 +27,7 @@ class NewsListView(ListCreateAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
-        queryset = News.objects.all()
+        queryset = News.objects.all().order_by("-pk")
         search_title_content_query = self.request.query_params.get(
             'q', None)  # 통합 검색 /api/news/?q=제목+내용
         title_query = self.request.query_params.get(
@@ -62,7 +63,7 @@ class NewsListView(ListCreateAPIView):
         user.point += 3
         user.save()
 
-        return Response({"message": "글 작성 포인트💰(3) 지급되었습니다."}, status=status.HTTP_201_CREATED)
+        return Response({"message": "글 작성 포인트💰(+3)"}, status=status.HTTP_201_CREATED)
 
 class WebCrawlingAPIView(APIView):
     permission_classes = [IsAdminUser]  # 관리자만 크롤링을 수행할 수 있게 제한
@@ -215,23 +216,26 @@ class CommentListView(APIView):
         if serializer.is_valid(raise_exception=True):
             serializer.save(author=request.user, news=news)
 
+            if request.user != news.author:
 
-            user = request.user
-            user.point += 2
-            user.save()
-    
+                user = request.user
+                user.point += 1
+                user.save()
+                news.author.point += 1
+                news.author.save()
+        
 
-            post_author_email = news.author.email
-            send_mail(
-                '새로운 댓글이 달렸습니다',
-                f'{request.user.username}님이 "{news.title}" 게시글에 댓글을 달았습니다.',
-                'commentsofnews@naver.com',  # 발신자 이메일
-                [post_author_email],  # 수신자 이메일
-                fail_silently=False,
-            )
+                post_author_email = news.author.email
+                send_mail(
+                    '새로운 댓글이 달렸습니다',
+                    f'{request.user.username}님이 "{news.title}" 게시글에 댓글을 달았습니다.',
+                    'commentsofnews@naver.com',  # 발신자 이메일
+                    [post_author_email],  # 수신자 이메일
+                    fail_silently=False,
+                )
 
-            return Response({"message": "댓글 작성 포인트 +2 💰"}, serializer.data, status=status.HTTP_201_CREATED)
-
+                return Response({"data": serializer.data, "message": "댓글 작성 포인트(+1) 💰"}, status=status.HTTP_201_CREATED)
+            return Response({"data": serializer.data, "message": "댓글 작성 완료👌"}, status=status.HTTP_201_CREATED)
 
 
 class CommentDetailAPIView(APIView):
@@ -286,24 +290,29 @@ class NewsDetailAPIView(APIView):
 class NewsLikeAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def post(self, request, pk):
+    def get(self, request, pk):
         news = get_object_or_404(News, pk=pk)
-        user = request.user
+        user = request.user  # 현재 요청한 유저
+        
+        if news.author == user:
+            return Response({"message": "본인 글은 좋아요 할 수 없어요😢"}, status=status.HTTP_400_BAD_REQUEST)
 
-        if news.likes.filter(pk=user.pk).exists():
-            news.likes.remove(user)
+        if news.like.filter(pk=user.pk).exists():
+            news.like.remove(user)
             message = "좋아요 취소😢"
 
         else:
-            news.likes.add(user)
+            news.like.add(user)
             message = "좋아요👍"
 
-            user.point += 1
-            user.save()
-            return Response({"message": "댓글 작성 완료👌 포인트(1) 지급 완료!💰"}, user.data, status=status.HTTP_201_CREATED)
-        
+            # 글 작성자에게 포인트 지급
+            author = news.author
+            author.point += 1
+            author.save()
+            return Response({"message": "좋아요 완료👌"}, status=status.HTTP_201_CREATED)
 
         return Response(data={"message": message}, status=status.HTTP_200_OK)
+
 
 
 # 좋아요한 뉴스 조회
