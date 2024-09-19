@@ -228,7 +228,7 @@ class CommentListView(APIView):
 
                 post_author_email = news.author.email
                 send_mail(
-                    '새로운 댓글이 달렸습니다',
+                    '새로운 댓글이 달렸습니다. 포인트(+1) 💰',
                     f'{request.user.username}님이 "{news.title}" 게시글에 댓글을 달았습니다.',
                     'commentsofnews@naver.com',  # 발신자 이메일
                     [post_author_email],  # 수신자 이메일
