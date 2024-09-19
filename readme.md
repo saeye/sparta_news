@@ -160,7 +160,7 @@ To set up and run the project, follow these steps:
 
 
 <br>
-For more details, refer to our [API documentation](https://documenter.getpostman.com/view/37996824/2sAXqs62Yd)
+For more details, refer to our [API documentation](https://documenter.getpostman.com/view/37996824/2sAXqs62Yd).
 <br><br>
 
 ## ERD
