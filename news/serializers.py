@@ -32,5 +32,14 @@ class CommentSerializer(serializers.ModelSerializer):
         return ret
         
 
-class NewsDetailSerializer(NewsSerializer):
-    pass
+class NewsDetailSerializer(serializers.ModelSerializer):
+    comments = serializers.SerializerMethodField()
+
+    class Meta:
+        model = News
+        fields = ['id', 'title', 'content', 'created_at', 'updated_at', 'author', 'category', 'like', 'comments']
+
+    def get_comments(self, obj):
+        comments = Comment.objects.filter(news=obj).order_by('-created_at')  # 댓글 최신순으로 정렬
+        return CommentSerializer(comments, many=True).data
+
