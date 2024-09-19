@@ -198,7 +198,6 @@ class SigninView(APIView):
 
         user = authenticate(username=username, password=password)
         message = ""
-
         if not user:
             return Response({"error": "Username or password is incorrect."}, status=status.HTTP_400_BAD_REQUEST)
         

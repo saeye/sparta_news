@@ -291,7 +291,7 @@ class NewsDetailAPIView(APIView):
 class NewsLikeAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, pk):
+    def post(self, request, pk):
         news = get_object_or_404(News, pk=pk)
         user = request.user  # 현재 요청한 유저
         
