@@ -109,10 +109,11 @@ class WebCrawlingAPIView(APIView):
                 return Response({"error": f"ChatGPT 요청 실패: {str(e)}"}, status=500)
 
             # ChatGPT로 기사내용 번역 or 요약
-            try:
-                title = generate_title(content)
-            except Exception as e:
-                return Response({"error": f"ChatGPT 요청 실패: {str(e)}"}, status=500)
+            if not title:
+                try:
+                    title = generate_title(content)
+                except Exception as e:
+                    return Response({"error": f"ChatGPT 요청 실패: {str(e)}"}, status=500)
 
             # 2. 크롤링한 데이터를 News 모델에 저장
             serializer = NewsSerializer(data={
