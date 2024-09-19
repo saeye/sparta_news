@@ -31,6 +31,8 @@
 
 This project is designed to build an API server using Django Rest Framework (DRF). It provides a backend solution for managing news articles, comments, user accounts, and various interactive features. The API server allows developers to create and customize news-related applications efficiently.
 
+You can access the live demo of the project [here](배포시 링크 추가예정).
+
 
 ### Duration
 24.09.11 - 24.09.19
@@ -145,7 +147,7 @@ To set up and run the project, follow these steps:
 | `/api/news/category/`               | POST       | Create a news category                 | `name` (required)                                                                | `IsAuthenticated`        |
 | `/api/news/like/<int:pk>/`          | POST       | Like/Unlike a news post                | `pk` (required): News ID                                                        | `IsAuthenticated`        |
 | `/api/news/user/liked/`             | GET        | Retrieve news liked by the user        | -                                                                              | `IsAuthenticated`        |
-| `/api/news/news_crawling/`          | POST       | Crawl news content                     | `url` (required): News article URL <br> `category` (optional)                   | `IsAuthenticated`        |
+| `/api/news/news_crawling/`          | POST       | Crawl news content,<br> proccess with LLM, <br> to create a news post               | `url` (required): News article URL <br> `category` (optional)                   | `IsAuthenticated`        |
 
 ### Comment Management
 
