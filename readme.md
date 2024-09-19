@@ -109,7 +109,10 @@ To set up and run the project, follow these steps:
 
 
 ## Wireframe
-이미지 첨부예정.
+
+![image](https://github.com/user-attachments/assets/b125f238-559f-4826-8820-c2d2a046a98c)
+
+
 <br><br>
 
 
@@ -157,11 +160,13 @@ To set up and run the project, follow these steps:
 
 
 <br>
-For more details, refer to our [API documentation](API문서첨부예정).
+For more details, refer to our [API documentation](https://documenter.getpostman.com/view/37996824/2sAXqs62Yd).
 <br><br>
 
 ## ERD
-이미지 첨부예정.
+
+<img width="1083" alt="스크린샷 2024-09-19 오후 6 14 23" src="https://github.com/user-attachments/assets/45c0b12e-e51d-4c7a-86db-3f87eb63ed0c">
+
 <br><br>
 
 ## Role Distribution
