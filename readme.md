@@ -1,4 +1,4 @@
-![header](https://capsule-render.vercel.app/api?type=waving&height=300&color=gradient&text=Spart%20News)
+![header](https://capsule-render.vercel.app/api?type=waving&height=300&color=gradient&text=Sparta%20News)
 
 [![Python Version](https://img.shields.io/badge/Python-3.12.4-3776AB)](https://www.python.org/)
 [![Django Version](https://img.shields.io/badge/Django-4.2-092E20)](https://www.djangoproject.com/)
