@@ -77,7 +77,7 @@ class UserCreateView(APIView):
             '',
             'commentsofnews@naver.com',
             # 테스트를 위해 메일 고정함, 실제로는 'jms070300@naver.com'->user.email로 바꿔야함
-            ['saeye42@gmail.com'],
+            ['sejun0723@naver.com'],
         )
         mail.attach_alternative(message, "text/html")
         mail.send()
@@ -198,7 +198,6 @@ class SigninView(APIView):
 
         user = authenticate(username=username, password=password)
         message = ""
-
         if not user:
             return Response({"error": "Username or password is incorrect."}, status=status.HTTP_400_BAD_REQUEST)
         
