@@ -42,11 +42,10 @@ This project is designed to build an API server using Django Rest Framework (DRF
 - **Comment System:** Users can add, view, update, and delete comments on news articles. Notifications are sent to the article author when a new comment is added.
 - **Likes System:** Users can like and unlike news articles. Points are awarded to the article author when their article is liked.
 - **Search Functionality:** Search news articles based on various criteria such as title, content, or author. Integrated support for searching across multiple fields.
-- **Sorting and Ranking:** News articles can be sorted and ranked based on various metrics including recency and user engagement (likes, comments).
 - **User Liked News:** Users can view a list of news articles they have liked.
 - **Web Crawling:** Allows authenticated users to crawl external news websites, extract articles, and save them to the database. Supports multiple news sources with specific parsers.
 - **Dynamic News Summarization:** Automatically summarizes the content of news articles into concise, digestible chunks.
-- **Multilingual Translation:** Translates news summaries into multiple languages for broader accessibility.
+- **Multilingual Translation:** Translates news summaries into Korean for English content.
 - **Points System:** Users earn points for creating posts, receiving likes, and writing comments. Points can be tracked and incentivize user engagement.
 - **Email Notifications:** Authors receive email notifications when new comments are made on their posts.
 
@@ -160,7 +159,12 @@ To set up and run the project, follow these steps:
 
 
 <br>
-For more details, refer to our [API documentation](https://documenter.getpostman.com/view/37996824/2sAXqs62Yd).
+For more details, refer to our documentation <br>
+
+***[📖 API documentation](https://documenter.getpostman.com/view/37996824/2sAXqs62Yd)*** <br>
+***[📚 SA documentation](https://www.notion.so/teamsparta/DRF-SA-d792a0eaa0844c8b890b011a95d1e841)*** <br>
+***[🙌 Team Notion Page](https://www.notion.so/teamsparta/30ea3dd32eb4490c9434d821caf38057)***
+
 <br><br>
 
 ## ERD
@@ -174,7 +178,7 @@ For more details, refer to our [API documentation](https://documenter.getpostman
 | **Name**                           | **GitHub Handle**                                                   | **Responsibilities**                                                                                           |
 |------------------------------------|---------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
 | **Saeye Lee**                      | [@saeye](https://github.com/saeye)                                  | User registration, password reset, profile update, account deletion, and point system implementation.           |
-| **Woolin Kim**                    | [@kimwoolina](https://github.com/kimwoolina)                        | Comment creation, modification, update, deletion, login, logout, article summarization and translation using GPT API |
+| **Woolin Kim**                    | [@kimwoolina](https://github.com/kimwoolina)                        | Comment creation, retrieval, update, deletion, login, logout, article summarization and translation using GPT API |
 | **Jisu Na**                        | [@qwerrrqw](https://github.com/qwerrrqw)                            | Post creation, post listing, category management, search functionality, and web crawling.                        |
 | **Sejun Lee**                      | [@gr22nsky](https://github.com/gr22nsky)                            | Follow/unfollow, profile viewing, comment notification, and user update throttling.                              |
 | **Minseong Jeon**                  | [@Oztalun](https://github.com/Oztalun)                              | Post editing, deletion, viewing, and email verification implementation.                                         |
