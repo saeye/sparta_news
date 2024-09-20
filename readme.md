@@ -190,4 +190,4 @@ For more details, refer to our documentations. <br>
 <br>
 
 ## Demo Video
-시연영상 첨부예정.
+[![YouTube Video](https://img.youtube.com/vi/extnXnSDUbM/0.jpg)](https://www.youtube.com/watch?v=extnXnSDUbM)
