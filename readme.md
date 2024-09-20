@@ -31,7 +31,7 @@
 
 This project is designed to build an API server using Django Rest Framework (DRF). It provides a backend solution for managing news articles, comments, user accounts, and various interactive features. The API server allows developers to create and customize news-related applications efficiently.
 
-You can access the live demo of the project [here](배포시 링크 추가예정).
+You can access the live demo of the project [here](http://175.117.129.111:8000/api/news/).
 
 
 ### Duration
