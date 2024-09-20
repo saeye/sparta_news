@@ -18,7 +18,7 @@
 
 1. [Introduction](#introduction)
 2. [Features](#features)
-3. [Installation](#installation)
+3. [Setup](#setup)
 4. [API Documentation](#api-documentation)
 5. [Wireframe]((#wireframe))
 6. [ERD](#erd)
@@ -31,28 +31,31 @@
 
 This project is designed to build an API server using Django Rest Framework (DRF). It provides a backend solution for managing news articles, comments, user accounts, and various interactive features. The API server allows developers to create and customize news-related applications efficiently.
 
+You can access the live demo of the project [here](http://175.117.129.111:8000/api/news/).
+
 
 ### Duration
 24.09.11 - 24.09.19
 <br><br>
 
 ## Features
-- **User Authentication:** Users can sign up, log in, and manage their profiles with different permission levels.
-- **Articles Management:** Users can create, view, update, and delete news articles. Posts are available for authenticated users, and administrators can manage categories.
-- **Comment System:** Users can add, view, update, and delete comments on news articles. Notifications are sent to the article author when a new comment is added.
-- **Likes System:** Users can like and unlike news articles. Points are awarded to the article author when their article is liked.
-- **Search Functionality:** Search news articles based on various criteria such as title, content, or author. Integrated support for searching across multiple fields.
-- **Sorting and Ranking:** News articles can be sorted and ranked based on various metrics including recency and user engagement (likes, comments).
-- **User Liked News:** Users can view a list of news articles they have liked.
-- **Web Crawling:** Allows authenticated users to crawl external news websites, extract articles, and save them to the database. Supports multiple news sources with specific parsers.
-- **Dynamic News Summarization:** Automatically summarizes the content of news articles into concise, digestible chunks.
-- **Multilingual Translation:** Translates news summaries into multiple languages for broader accessibility.
-- **Points System:** Users earn points for creating posts, receiving likes, and writing comments. Points can be tracked and incentivize user engagement.
-- **Email Notifications:** Authors receive email notifications when new comments are made on their posts.
+| **Feature**                 | **Description**                                                                                      |
+|-----------------------------|------------------------------------------------------------------------------------------------------|
+| **User Authentication**     | Sign up, log in, and manage profiles with different permission levels.                              |
+| **Articles Management**     | Create, view, update, and delete news articles. Posts are available to authenticated users. Administrators can manage categories. |
+| **Comment System**          | Add, view, update, and delete comments on news articles. Notifications are sent to article authors when a new comment is added. |
+| **Likes System**            | Like and unlike news articles. Points are awarded to article authors when their articles are liked.  |
+| **Search Functionality**    | Search news articles by title, content, or author. Supports multi-field searching.                   |
+| **User Liked News**         | View a list of news articles liked by the user.                                                      |
+| **Web Crawling**            | Crawl external news websites, extract articles, and save them to the database. Supports multiple news sources with specific parsers. |
+| **Dynamic News Summarization** | Automatically summarizes news content into concise, digestible chunks.                               |
+| **Multilingual Translation** | Translate news summaries into Korean for English content.                                            |
+| **Points System**           | Earn points for creating posts, receiving likes, and writing comments. Track points to incentivize user engagement. |
+| **Email Notifications**     | Authors receive email notifications when new comments are made on their posts.                      |
 
-<br><br>
+<br>
   
-## installation
+##  Setup
 To set up and run the project, follow these steps:
 
 1. Clone the project repository:
@@ -146,7 +149,7 @@ To set up and run the project, follow these steps:
 | `/api/news/category/`               | POST       | Create a news category                 | `name` (required)                                                                | `IsAuthenticated`        |
 | `/api/news/like/<int:pk>/`          | POST       | Like/Unlike a news post                | `pk` (required): News ID                                                        | `IsAuthenticated`        |
 | `/api/news/user/liked/`             | GET        | Retrieve news liked by the user        | -                                                                              | `IsAuthenticated`        |
-| `/api/news/news_crawling/`          | POST       | Crawl news content                     | `url` (required): News article URL <br> `category` (optional)                   | `IsAuthenticated`        |
+| `/api/news/news_crawling/`          | POST       | Crawl news content,<br> proccess with LLM, <br> to create a news post               | `url` (required): News article URL <br> `category` (optional)                   | `IsAuthenticated`        |
 
 ### Comment Management
 
@@ -160,7 +163,12 @@ To set up and run the project, follow these steps:
 
 
 <br>
-For more details, refer to our [API documentation](https://documenter.getpostman.com/view/37996824/2sAXqs62Yd).
+For more details, refer to our documentations. <br>
+
+***[📖 API documentation](https://documenter.getpostman.com/view/37996824/2sAXqs62Yd)*** <br>
+***[📚 SA documentation](https://www.notion.so/teamsparta/DRF-SA-d792a0eaa0844c8b890b011a95d1e841)*** <br>
+***[🙌 Team Notion Page](https://www.notion.so/teamsparta/30ea3dd32eb4490c9434d821caf38057)***
+
 <br><br>
 
 ## ERD
@@ -174,7 +182,7 @@ For more details, refer to our [API documentation](https://documenter.getpostman
 | **Name**                           | **GitHub Handle**                                                   | **Responsibilities**                                                                                           |
 |------------------------------------|---------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
 | **Saeye Lee**                      | [@saeye](https://github.com/saeye)                                  | User registration, password reset, profile update, account deletion, and point system implementation.           |
-| **Woolin Kim**                    | [@kimwoolina](https://github.com/kimwoolina)                        | Comment creation, modification, update, deletion, login, logout, article summarization and translation using GPT API |
+| **Woolin Kim**                    | [@kimwoolina](https://github.com/kimwoolina)                        | Comment creation, retrieval, update, deletion, login, logout, article summarization and translation using GPT API |
 | **Jisu Na**                        | [@qwerrrqw](https://github.com/qwerrrqw)                            | Post creation, post listing, category management, search functionality, and web crawling.                        |
 | **Sejun Lee**                      | [@gr22nsky](https://github.com/gr22nsky)                            | Follow/unfollow, profile viewing, comment notification, and user update throttling.                              |
 | **Minseong Jeon**                  | [@Oztalun](https://github.com/Oztalun)                              | Post editing, deletion, viewing, and email verification implementation.                                         |
